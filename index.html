@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adventure Platformer Game</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      background-color: #87CEEB; /* Sky background */
+    }
+
+    #game {
+      position: relative;
+      width: 800px;
+      height: 400px;
+      margin: 50px auto;
+      border: 2px solid #000;
+      overflow: hidden;
+      background-color: #b3d9ff; /* Set a background */
+    }
+
+    .floor {
+      position: absolute;
+      width: 100%;
+      height: 50px;
+      bottom: 0;
+      background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT1KNjlyFJhk-JHPpgjZFnlBizq2_kkaNtBdw&s') repeat-x;
+      background-size: cover;
+    }
+
+    .player {
+      position: absolute;
+      width: 50px;
+      height: 200px;
+      background: url('https://cdn.pixabay.com/photo/2013/07/13/09/38/mens-locker-room-155828_640.png') no-repeat center;
+      background-size: contain;
+      background-color: transparent;
+      left: 50px;
+      bottom: 50px; /* Initial position just above the floor */
+    }
+
+    .platform {
+      position: absolute;
+      width: 100px;
+      height: 20px;
+      background: url('https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/25589cd0-92ad-4490-9bf3-02e4b8af0ce9/d55vt9t-475348d6-a33b-4704-b7e5-bf7413e02810.png') no-repeat center;
+      background-size: cover;
+      bottom: 100px;
+    }
+
+    .flag {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      background: url('https://img.icons8.com/color/96/ffffff/flag.png') no-repeat center;
+      background-size: contain;
+      left: 700px;
+      top: 200px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="game">
+  <div class="player"></div>
+  <div class="platform"></div>
+  <div class="flag"></div>
+  <div class="floor"></div>
+</div>
+
+<script>
+  const game = document.getElementById('game');
+  const player = document.querySelector('.player');
+  const floor = document.querySelector('.floor');
+
+  let gameWidth = game.offsetWidth;
+  let gameHeight = game.offsetHeight;
+
+  let playerX = 50;
+  let playerY = gameHeight - 100; // Start just above the floor
+  let velocityY = 0;
+  let speed = 5;
+  let gravity = 0.6;
+  let jumpHeight = -15;
+  let isJumping = false;
+  let keys = {
+    left: false,
+    right: false,
+    up: false
+  };
+
+  // Event listeners for key presses
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowLeft') keys.left = true;
+    if (event.key === 'ArrowRight') keys.right = true;
+    if (event.key === 'ArrowUp' && !isJumping) {
+      velocityY = jumpHeight; // Apply initial jump velocity
+      isJumping = true;
+    }
+  });
+
+  document.addEventListener('keyup', (event) => {
+    if (event.key === 'ArrowLeft') keys.left = false;
+    if (event.key === 'ArrowRight') keys.right = false;
+  });
+
+  // Game loop
+  function gameLoop() {
+    if (keys.left) playerX -= speed;
+    if (keys.right) playerX += speed;
+
+    // Prevent the player from going off-screen
+    if (playerX < 0) playerX = 0;
+    if (playerX > gameWidth - player.offsetWidth) playerX = gameWidth - player.offsetWidth;
+
+    // Apply gravity and jump
+    velocityY += gravity;
+    playerY += velocityY;
+
+    // Collision with the floor
+    const playerRect = player.getBoundingClientRect();
+    const floorRect = floor.getBoundingClientRect();
+
+    if (playerRect.bottom >= floorRect.top) {
+      playerY = floorRect.top - player.offsetHeight;
+      isJumping = false;
+      velocityY = 0;
+    }
+
+    // Update the player's position
+    player.style.left = playerX + 'px';
+    player.style.top = playerY + 'px';
+
+    requestAnimationFrame(gameLoop);
+  }
+
+  gameLoop(); // Start the game loop
+</script>
+
+</body>
+</html>
